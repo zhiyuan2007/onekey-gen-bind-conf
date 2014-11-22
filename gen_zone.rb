@@ -75,6 +75,7 @@ def gen_options()
          directory \"/root/lgr/named/etc\";
          listen-on port 9993 {any; };
          recursion no;
+         allow-new-zones yes;
     };\n"
     logs = "logging {
     channel query_log {
