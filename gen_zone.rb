@@ -17,8 +17,16 @@ def gen_acl_conf(acls = 100)
     a = ""
     acls.times do |i|
          a += "acl \"acl#{i}\" {\n"
-         300.times do |j|
-            a += "\t2.#{rand(255)}.#{rand(255)}.0/24;\n"
+         1000.times do |j|
+            net = rand(255)
+            while 1 do
+                if (net == 202 )
+                   net = rand(255)
+                else
+                    break
+                end
+            end
+            a += "\t#{net}.#{rand(255)}.#{rand(255)}.0/24;\n"
          end
          a += "};\n"
    end
@@ -173,7 +181,7 @@ zones = 10
 rrs = 10
 share_zone = false
 regenerate_zone_file = true
-bind_dir = "/home/liuben/lgr/named_test"
+bind_dir = "/root/lgr/named_test"
 log_dir = bind_dir + "/zone"
 named_conf = bind_dir + "/etc/named.conf" 
 rndc_conf = bind_dir + "/etc/rndc.conf" 
