@@ -18,7 +18,7 @@ def gen_acl_conf(acls = 100)
     acls.times do |i|
          a += "acl \"acl#{i}\" {\n"
          300.times do |j|
-            a += "\t#{rand(255)}.#{rand(255)}.#{rand(255)}.0/24;\n"
+            a += "\t2.#{rand(255)}.#{rand(255)}.0/24;\n"
          end
          a += "};\n"
    end
@@ -70,22 +70,22 @@ def gen_shared_zone_conf(shared_view, zone_name, zones, rrs=0)
    z
 end
 
-def gen_options()
+def gen_options(main_dir)
     options = "options {
-         directory \"/root/lgr/named/etc\";
+         directory \"#{main_dir}/etc\";
          listen-on port 9993 {any; };
          recursion no;
          allow-new-zones yes;
     };\n"
     logs = "logging {
     channel query_log {
-        file \"/root/lgr/named/log/query.log\" versions 5 size 100m;
+        file \"#{main_dir}/log/query.log\" versions 5 size 100m;
         print-time yes;
         severity info;
     };  
     category queries { query_log;};
     channel general_log {
-        file \"/root/lgr/named/log/general.log\" versions 5 size 20m;
+        file \"#{main_dir}/log/general.log\" versions 5 size 20m;
         print-time yes;
         print-category yes;
         print-severity yes;
@@ -140,6 +140,7 @@ def gen_view_conf(zone_dir, views, zones, rrs, share_zone=false, regenerate_zone
            end
          end
          viewconf += "};\n"
+		 idx += 1
     end
     viewconf  
 end
@@ -160,24 +161,26 @@ options {
 end
 
 def output_to_file(filename, cnt)
+	dir=filename[0..filename.rindex("/")-1]
+	`mkdir #{dir}` unless File.exists?(dir)
     fp = open(filename, "w")
     fp.puts cnt
     fp.close
 end
 
-views = 10
+views = 100
 zones = 10
 rrs = 10
 share_zone = false
-regenerate_zone_file = false
-bind_dir = "/root/lgr/named"
+regenerate_zone_file = true
+bind_dir = "/home/liuben/lgr/named_test"
 log_dir = bind_dir + "/zone"
 named_conf = bind_dir + "/etc/named.conf" 
 rndc_conf = bind_dir + "/etc/rndc.conf" 
 `mkdir -p #{bind_dir}/etc`
 `mkdir -p #{bind_dir}/log`
 `mkdir -p #{bind_dir}/zone`
-conf = gen_options
+conf = gen_options(bind_dir)
 conf += gen_acl_conf(views)
 conf += gen_key_conf(views, VIEW_P)
 conf += gen_view_conf(log_dir, views, zones, rrs, share_zone, regenerate_zone_file)
